@@ -42,8 +42,18 @@ O frontend usa `NEXT_PUBLIC_BASE_URL` para definir a URL da API. Exemplo de `.en
 NEXT_PUBLIC_BASE_URL=http://localhost:8080
 ```
 
+## Testes (Atividade 2)
+
+Veja **[TESTES.md](TESTES.md)**: como rodar, quais testes foram criados e os bugs encontrados.
+
+```bash
+cd api && ./mvnw test      # backend: 6 testes, 1 falha de propósito (bug)
+cd client && npm test      # frontend: 6 testes, 1 falha de propósito (bug)
+```
+
 ## Documentações
 
+- [Testes e bugs encontrados](TESTES.md)
 - [README da API](api/README.md)
 - [README do Frontend](client/README.md)
 - [DummyJSON API Docs](https://dummyjson.com/docs)
