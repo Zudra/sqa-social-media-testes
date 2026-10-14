@@ -6,6 +6,7 @@ Projeto educacional com uma API Spring Boot e um frontend Next.js.
 
 - `api/`: backend Java 17 com Spring Boot, autenticação, usuários, posts e curtidas.
 - `client/`: frontend Next.js/React que consome a API.
+- `tests/`: testes E2E e de API com Playwright, executados contra o sistema rodando.
 
 Principais rotas da aplicação:
 
@@ -51,9 +52,21 @@ cd api && ./mvnw test      # backend: 6 testes, 1 falha de propósito (bug)
 cd client && npm test      # frontend: 6 testes, 1 falha de propósito (bug)
 ```
 
+## Testes E2E e de API (Playwright)
+
+Veja **[tests/README.md](tests/README.md)**: como o projeto foi criado, como rodar, quais testes existem e os bugs capturados. Precisa da API e do client rodando.
+
+```bash
+cd tests
+npm install
+npx playwright install chromium
+npm test                   # 8 E2E + 11 de API, 3 falham de propósito (bugs)
+```
+
 ## Documentações
 
 - [Testes e bugs encontrados](TESTES.md)
+- [Testes E2E e de API](tests/README.md)
 - [README da API](api/README.md)
 - [README do Frontend](client/README.md)
 - [DummyJSON API Docs](https://dummyjson.com/docs)
