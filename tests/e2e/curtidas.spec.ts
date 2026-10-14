@@ -46,8 +46,15 @@ test.describe('E2E - Curtidas', () => {
     await expect(botaoCurtido).toContainText('❤️');
     await expect(botaoCurtido).toHaveCSS('background-color', VERDE);
 
+    // Em modo dev o StrictMode do React executa o useEffect duas vezes e a página busca
+    // os curtidos duas vezes. Se descurtir antes da segunda resposta, ela traz o post de volta.
+    let buscasCurtidos = 0;
+    const segundaBuscaCurtidos = page.waitForResponse(
+      (r) => r.url().includes('/posts/liked') && ++buscasCurtidos === 2,
+    );
     await botaoDoHeader(page, 'Posts Curtidos').click();
     await expect(page).toHaveURL('/auth/liked');
+    await segundaBuscaCurtidos;
 
     const curtidos = page.getByRole('listitem');
     await expect(curtidos).toHaveCount(1);
