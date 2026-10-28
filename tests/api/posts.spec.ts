@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test';
 import { novoUsuario } from '../support/dados';
+import { DUMMYJSON_URL } from '../support/ambiente';
 
 test.describe('API - POSTS', () => {
-  test('GET /posts retorna a página pedida com título, corpo e "liked"', async ({ request }) => {
+  test('GET /posts retorna a página pedida com título, corpo, "liked" e reações', async ({ request }) => {
     const resposta = await request.get('/posts', { params: { limit: 5, skip: 5 } });
 
     expect(resposta.status()).toBe(200);
@@ -16,8 +17,23 @@ test.describe('API - POSTS', () => {
         title: expect.any(String),
         body: expect.any(String),
         liked: false,
+        reactions: { likes: expect.any(Number), dislikes: expect.any(Number) },
       });
     }
+  });
+
+  test('GET /posts repassa as curtidas e descurtidas do objeto "reactions" do DummyJSON', async ({ request }) => {
+    const dummy = await (
+      await request.get(`${DUMMYJSON_URL}/posts`, { params: { limit: 10, skip: 0 } })
+    ).json();
+
+    const resposta = await request.get('/posts', { params: { limit: 10, skip: 0 } });
+
+    expect(resposta.status()).toBe(200);
+    const corpo = await resposta.json();
+    expect(corpo.posts.map((p: { id: number; reactions: object }) => ({ id: p.id, reactions: p.reactions }))).toEqual(
+      dummy.posts.map((p: { id: number; reactions: object }) => ({ id: p.id, reactions: p.reactions })),
+    );
   });
 
   test('POST /posts/{id}/like curte e descurte o post para o usuário', async ({ request }) => {
