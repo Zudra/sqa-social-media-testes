@@ -9,6 +9,7 @@ describe("Components - PostCard", () => {
     title: "Título do post",
     body: "Corpo do post",
     liked: false,
+    reactions: { likes: 192, dislikes: 25 },
   };
 
   test("deve exibir título, corpo e dar feedback visual de curtido ao clicar em 'Curtir' com usuário logado", async () => {
@@ -28,5 +29,21 @@ describe("Components - PostCard", () => {
     expect(onLike).toHaveBeenCalledWith(7);
     expect(botaoCurtido).toHaveTextContent("❤️");
     expect(botaoCurtido.style.background).toBe("var(--secondary)");
+  });
+
+  test("deve exibir o número de curtidas e descurtidas do objeto reactions do post", () => {
+    render(<PostCard post={post} isAuthenticated={false} onLike={jest.fn()} />);
+
+    expect(screen.getByText("👍 192 curtidas")).toBeInTheDocument();
+    expect(screen.getByText("👎 25 descurtidas")).toBeInTheDocument();
+  });
+
+  test("deve exibir zero quando o post não tem curtidas nem descurtidas", () => {
+    const semReacoes = { ...post, reactions: { likes: 0, dislikes: 0 } };
+
+    render(<PostCard post={semReacoes} isAuthenticated={false} onLike={jest.fn()} />);
+
+    expect(screen.getByText("👍 0 curtidas")).toBeInTheDocument();
+    expect(screen.getByText("👎 0 descurtidas")).toBeInTheDocument();
   });
 });

@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import Home from "@/app/page";
 import { AuthProvider } from "@/contexts/AuthContext";
 import api from "@/service/api";
@@ -25,8 +25,20 @@ describe("App - Home (integração)", () => {
     mockedApi.get.mockResolvedValueOnce({
       data: {
         posts: [
-          { id: 1, title: "Primeiro post", body: "Corpo do primeiro", liked: false },
-          { id: 2, title: "Segundo post", body: "Corpo do segundo", liked: false },
+          {
+            id: 1,
+            title: "Primeiro post",
+            body: "Corpo do primeiro",
+            liked: false,
+            reactions: { likes: 192, dislikes: 25 },
+          },
+          {
+            id: 2,
+            title: "Segundo post",
+            body: "Corpo do segundo",
+            liked: false,
+            reactions: { likes: 859, dislikes: 32 },
+          },
         ],
         total: 2,
         skip: 0,
@@ -60,5 +72,47 @@ describe("App - Home (integração)", () => {
     expect(mockedApi.post).not.toHaveBeenCalled();
 
     alertSpy.mockRestore();
+  });
+
+  test("deve exibir junto a cada post as curtidas e descurtidas vindas da API", async () => {
+    mockedApi.get.mockResolvedValueOnce({
+      data: {
+        posts: [
+          {
+            id: 1,
+            title: "Primeiro post",
+            body: "Corpo do primeiro",
+            liked: false,
+            reactions: { likes: 192, dislikes: 25 },
+          },
+          {
+            id: 2,
+            title: "Segundo post",
+            body: "Corpo do segundo",
+            liked: true,
+            reactions: { likes: 859, dislikes: 32 },
+          },
+        ],
+        total: 2,
+        skip: 0,
+        limit: 10,
+      },
+    });
+
+    render(
+      <AuthProvider>
+        <Home />
+      </AuthProvider>
+    );
+
+    const [primeiro, segundo] = await screen.findAllByRole("listitem");
+
+    expect(within(primeiro).getByText("Primeiro post")).toBeInTheDocument();
+    expect(within(primeiro).getByText("👍 192 curtidas")).toBeInTheDocument();
+    expect(within(primeiro).getByText("👎 25 descurtidas")).toBeInTheDocument();
+
+    expect(within(segundo).getByText("Segundo post")).toBeInTheDocument();
+    expect(within(segundo).getByText("👍 859 curtidas")).toBeInTheDocument();
+    expect(within(segundo).getByText("👎 32 descurtidas")).toBeInTheDocument();
   });
 });

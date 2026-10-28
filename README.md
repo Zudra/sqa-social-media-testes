@@ -60,8 +60,22 @@ Veja **[tests/README.md](tests/README.md)**: como o projeto foi criado, como rod
 cd tests
 npm install
 npx playwright install chromium
-npm test                   # 8 E2E + 11 de API, 3 bugs conhecidos (test.fail)
+npm test                   # 9 E2E + 12 de API, 3 bugs conhecidos (test.fail)
 ```
+
+## Curtidas e descurtidas na Home
+
+Cada post do feed mostra o número de curtidas e descurtidas que vem da API do DummyJSON, onde as reações ficam no objeto `reactions`:
+
+```json
+{ "id": 1, "title": "...", "reactions": { "likes": 192, "dislikes": 25 } }
+```
+
+- **API:** `PostService` repassa o objeto `reactions` (`likes` e `dislikes`) em `GET /posts` e `GET /posts/liked`.
+- **Client:** o tipo `Post` ganhou `reactions` e o `PostCard` exibe `👍 N curtidas` e `👎 N descurtidas`.
+- **Testes:** API (`tests/api/posts.spec.ts`), E2E (`tests/e2e/reacoes.spec.ts`), componente (`client/tests/components/PostCard.test.tsx`) e integração (`client/tests/app/Home.test.tsx`).
+
+Esses números são os do DummyJSON e não mudam quando o usuário clica em "Curtir", que continua sendo a curtida salva na nossa API.
 
 ## Integração Contínua (GitHub Actions)
 

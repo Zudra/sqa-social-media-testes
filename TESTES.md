@@ -3,7 +3,7 @@
 Testes automatizados para o projeto SQA Social Media (Spring Boot + Next.js), feitos a partir dos requisitos da atividade.
 
 - **Backend:** 6 testes (2 JUnit puro, 2 MockMvc, 2 Mockito). **1 falha de propósito** e captura um bug.
-- **Frontend:** 6 testes (2 funções puras, 2 componentes, 2 integração). **1 falha de propósito** e captura um bug.
+- **Frontend:** 6 testes (2 funções puras, 2 componentes, 2 integração). **1 falha de propósito** e captura um bug. Mais 3 testes da feature de curtidas/descurtidas (2 de componente e 1 de integração), totalizando 9.
 
 Os testes que capturam bugs têm o prefixo **`[BUG]`** no nome. Os outros são testes de regressão e devem passar.
 
@@ -54,7 +54,7 @@ Resultado esperado:
 
 ```
 Test Suites: 5 passed, 5 total
-Tests:       6 passed, 6 total
+Tests:       9 passed, 9 total
 ```
 
 O teste do bug usa `test.failing`, então ele "passa" porque a asserção falha. Trocando por `test`, o resultado é:
@@ -65,7 +65,7 @@ FAIL tests/utils/password.test.ts
     Expected: true
     Received: false
 
-Tests:       1 failed, 5 passed, 6 total
+Tests:       1 failed, 8 passed, 9 total
 ```
 
 Rodar só um arquivo: `npx jest tests/utils/password.test.ts`
@@ -96,6 +96,9 @@ Rodar só um arquivo: `npx jest tests/utils/password.test.ts`
 | Componente | `components/PostCard.test.tsx` | Exibe título/corpo; logado, ao clicar em "Curtir" chama `onLike` e mostra "Curtido", ❤️ e fundo verde | 5 | ✅ passa |
 | Componente | `components/Header.test.tsx` | Deslogado mostra "Entrar" e "Criar conta"; clicar no título leva para `/` | 4 | ✅ passa |
 | Integração | `app/Home.test.tsx` | Home + Header + PostCard + AuthContext: exibe o feed da API e, deslogado, "Curtir" dispara o alert | 5 | ✅ passa |
+| Componente | `components/PostCard.test.tsx` | Exibe "👍 192 curtidas" e "👎 25 descurtidas" a partir de `post.reactions` | Feature | ✅ passa |
+| Componente | `components/PostCard.test.tsx` | Exibe "👍 0 curtidas" e "👎 0 descurtidas" quando o post não tem reações | Feature | ✅ passa |
+| Integração | `app/Home.test.tsx` | A Home mostra junto a cada post do feed as curtidas e descurtidas vindas da API | Feature | ✅ passa |
 | Integração | `app/SignIn.test.tsx` | SignIn + Input + Button + Header + AuthContext: login correto chama a API, Header passa a mostrar "Posts Curtidos"/"Sair" e redireciona para `/` | 2, 4 | ✅ passa |
 
 - **Componentes:** renderizados isolados. No `Header`, o `useAuth` e o `useRouter` são mockados.
