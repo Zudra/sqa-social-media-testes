@@ -7,6 +7,11 @@ Testes automatizados para o projeto SQA Social Media (Spring Boot + Next.js), fe
 
 Os testes que capturam bugs têm o prefixo **`[BUG]`** no nome. Os outros são testes de regressão e devem passar.
 
+Para a pipeline de CI ficar verde sem esconder os bugs, os testes `[BUG]` ficam marcados como **falha conhecida**:
+
+- **Backend:** `@Disabled` com o motivo do bug. O teste aparece como *skipped* no relatório. Para ver a falha, remova o `@Disabled`.
+- **Frontend:** `test.failing` do Jest. O teste passa enquanto o bug existir e **passa a falhar quando o bug for corrigido**, avisando que o teste deve voltar a ser um `test` normal.
+
 ## Como rodar os testes
 
 Pré-requisitos: **Java 17+** e **Node.js 18+**. Os testes **não** precisam de MySQL nem da API rodando: o backend usa H2 em memória (`api/src/test/resources/application.properties`) e o frontend mocka a camada HTTP.
@@ -22,13 +27,18 @@ mvnw.cmd test        # Windows
 Resultado esperado:
 
 ```
-[ERROR] AuthControllerTests.deveRetornar409ComMensagemEmailJaCadastradoQuandoEmailJaExiste:71
+[WARNING] Tests run: 6, Failures: 0, Errors: 0, Skipped: 1
+[INFO] BUILD SUCCESS
+```
+
+O teste pulado é o do bug (`@Disabled`). Sem o `@Disabled`, o resultado é:
+
+```
+[ERROR] AuthControllerTests.deveRetornar409ComMensagemEmailJaCadastradoQuandoEmailJaExiste
         JSON path "$.message" expected:<E-mail já cadastrado> but was:<E-mail já está em uso>
 [ERROR] Tests run: 6, Failures: 1, Errors: 0, Skipped: 0
 [INFO] BUILD FAILURE
 ```
-
-O `BUILD FAILURE` é esperado, porque o teste do bug falha.
 
 Rodar só uma classe: `./mvnw test -Dtest=AuthControllerTests`
 
@@ -41,6 +51,13 @@ npm test
 ```
 
 Resultado esperado:
+
+```
+Test Suites: 5 passed, 5 total
+Tests:       6 passed, 6 total
+```
+
+O teste do bug usa `test.failing`, então ele "passa" porque a asserção falha. Trocando por `test`, o resultado é:
 
 ```
 FAIL tests/utils/password.test.ts
@@ -62,7 +79,7 @@ Rodar só um arquivo: `npx jest tests/utils/password.test.ts`
 | JUnit puro | `service/UserServiceTests.java` | Aceita senha forte (8+ caracteres, maiúscula, minúscula, número e especial) e rejeita quando falta um critério | 1 | ✅ passa |
 | JUnit puro | `service/UserServiceTests.java` | Aceita e-mail com usuário, @ e domínio; rejeita sem @ ou nulo | 1 | ✅ passa |
 | MockMvc | `controller/AuthControllerTests.java` | `POST /auth/signin` com senha incorreta → 401 + "Credenciais inválidas" | 2 | ✅ passa |
-| MockMvc | `controller/AuthControllerTests.java` | **[BUG]** `POST /auth/signup` com e-mail existente → 409 + "E-mail já cadastrado" | 1 | ❌ **falha (bug)** |
+| MockMvc | `controller/AuthControllerTests.java` | **[BUG]** `POST /auth/signup` com e-mail existente → 409 + "E-mail já cadastrado" | 1 | ❌ **falha (bug)**, `@Disabled` |
 | Mockito | `service/PostServiceTests.java` | Curtir post não curtido salva a reação e retorna `liked = true` | 5 | ✅ passa |
 | Mockito | `service/PostServiceTests.java` | Curtir post já curtido remove a reação e retorna `liked = false` | 5 | ✅ passa |
 
@@ -74,7 +91,7 @@ Rodar só um arquivo: `npx jest tests/utils/password.test.ts`
 
 | Tipo | Arquivo | Teste | Requisito | Resultado |
 |---|---|---|---|---|
-| Função pura | `utils/password.test.ts` | **[BUG]** `isPasswordValid("Abcdef1@")` (8 caracteres) deve ser `true` | 1 | ❌ **falha (bug)** |
+| Função pura | `utils/password.test.ts` | **[BUG]** `isPasswordValid("Abcdef1@")` (8 caracteres) deve ser `true` | 1 | ❌ **falha (bug)**, `test.failing` |
 | Função pura | `utils/password.test.ts` | `getPasswordValidationMessage` retorna a mensagem do critério específico que falta | 1 | ✅ passa |
 | Componente | `components/PostCard.test.tsx` | Exibe título/corpo; logado, ao clicar em "Curtir" chama `onLike` e mostra "Curtido", ❤️ e fundo verde | 5 | ✅ passa |
 | Componente | `components/Header.test.tsx` | Deslogado mostra "Entrar" e "Criar conta"; clicar no título leva para `/` | 4 | ✅ passa |

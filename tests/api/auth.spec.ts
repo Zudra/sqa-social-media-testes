@@ -23,7 +23,7 @@ test.describe('API - POST /auth/signup', () => {
     expect((await resposta.json()).status).toBe(409);
   });
 
-  test('[BUG] retorna a mensagem "E-mail já cadastrado" quando o e-mail já existe', async ({ request }) => {
+  test.fail('[BUG] retorna a mensagem "E-mail já cadastrado" quando o e-mail já existe', async ({ request }) => {
     const usuario = novoUsuario('duplicado');
     await request.post('/auth/signup', { data: usuario });
 

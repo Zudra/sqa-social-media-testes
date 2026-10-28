@@ -7,6 +7,8 @@ Testes de caixa-preta do SQA Social Media rodando contra o sistema em execução
 
 São **8 testes E2E** e **11 testes de API**. Os testes que capturam bugs têm o prefixo **`[BUG]`** no nome e **falham de propósito**. Os outros são testes de regressão e devem passar.
 
+Os testes `[BUG]` são declarados com `test.fail(...)`: o Playwright espera que eles falhem e conta como sucesso enquanto o bug existir. Se o bug for corrigido, o teste passa a ser reportado como `Expected to fail, but passed.`, avisando que ele deve voltar a ser um `test` normal. Assim a pipeline de CI fica verde sem esconder os bugs.
+
 ## Como o projeto foi criado
 
 O projeto foi iniciado do zero dentro da pasta `tests/` com o instalador oficial do Playwright:
@@ -63,12 +65,13 @@ npx playwright test --grep-invert "\[BUG\]"   # só os testes de regressão
 Resultado esperado:
 
 ```
-  3 failed
-    [api] › api/auth.spec.ts › API - POST /auth/signup › [BUG] retorna a mensagem "E-mail já cadastrado" quando o e-mail já existe
-    [e2e] › e2e/cadastro.spec.ts › E2E - Cadastro › [BUG] aceita senha forte com exatamente 8 caracteres
-    [e2e] › e2e/login.spec.ts › E2E - Login e logout › [BUG] mantém o usuário logado depois de recarregar a página
-  16 passed
+  ✘  3 [api] › api/auth.spec.ts › API - POST /auth/signup › [BUG] retorna a mensagem "E-mail já cadastrado" quando o e-mail já existe
+  ✘ 14 [e2e] › e2e/cadastro.spec.ts › E2E - Cadastro › [BUG] aceita senha forte com exatamente 8 caracteres
+  ✘ 19 [e2e] › e2e/login.spec.ts › E2E - Login e logout › [BUG] mantém o usuário logado depois de recarregar a página
+  19 passed
 ```
+
+Os três `[BUG]` aparecem com ✘ porque falharam, mas entram no total de `passed` porque essa falha era esperada (`test.fail`).
 
 Quando um teste falha, o Playwright salva screenshot e trace em `test-results/`. O trace pode ser aberto com `npx playwright show-trace <arquivo>.zip` ou pelo `npm run report`.
 

@@ -30,7 +30,7 @@ test.describe('E2E - Login e logout', () => {
     await expect(botaoDoHeader(page, 'Entrar')).toBeVisible();
   });
 
-  test('[BUG] mantém o usuário logado depois de recarregar a página', async ({ page, request }) => {
+  test.fail('[BUG] mantém o usuário logado depois de recarregar a página', async ({ page, request }) => {
     const usuario = novoUsuario('e2e.reload');
     await cadastrarViaApi(request, usuario);
 

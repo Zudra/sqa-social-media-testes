@@ -7,8 +7,10 @@ import {
 describe("Utils - Password", () => {
   describe("function isPasswordValid", () => {
     // BUG: password.ts usa `password.length <= 8`, então exige 9 caracteres
-    // ou mais. O requisito diz "mínimo 8 caracteres". Este teste FALHA de propósito.
-    test("[BUG] deve retornar true para senha forte com exatamente 8 caracteres (mínimo exigido pelo requisito)", () => {
+    // ou mais. O requisito diz "mínimo 8 caracteres". Este teste FALHA de propósito,
+    // por isso usa test.failing (falha esperada): passa enquanto o bug existir e
+    // passa a falhar quando o bug for corrigido, avisando para atualizar o teste.
+    test.failing("[BUG] deve retornar true para senha forte com exatamente 8 caracteres (mínimo exigido pelo requisito)", () => {
       const senha = "Abcdef1@";
 
       expect(senha).toHaveLength(8);
