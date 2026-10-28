@@ -5,7 +5,7 @@ Testes de caixa-preta do SQA Social Media rodando contra o sistema em execução
 - **E2E** (`e2e/`): simulam um usuário real no navegador (Chromium) usando o client.
 - **API** (`api/`): chamam os endpoints HTTP da API diretamente, sem passar pelo client.
 
-São **8 testes E2E** e **11 testes de API**. Os testes que capturam bugs têm o prefixo **`[BUG]`** no nome e **falham de propósito**. Os outros são testes de regressão e devem passar.
+São **9 testes E2E** e **12 testes de API**. Os testes que capturam bugs têm o prefixo **`[BUG]`** no nome e **falham de propósito**. Os outros são testes de regressão e devem passar.
 
 Os testes `[BUG]` são declarados com `test.fail(...)`: o Playwright espera que eles falhem e conta como sucesso enquanto o bug existir. Se o bug for corrigido, o teste passa a ser reportado como `Expected to fail, but passed.`, avisando que ele deve voltar a ser um `test` normal. Assim a pipeline de CI fica verde sem esconder os bugs.
 
@@ -66,9 +66,9 @@ Resultado esperado:
 
 ```
   ✘  3 [api] › api/auth.spec.ts › API - POST /auth/signup › [BUG] retorna a mensagem "E-mail já cadastrado" quando o e-mail já existe
-  ✘ 14 [e2e] › e2e/cadastro.spec.ts › E2E - Cadastro › [BUG] aceita senha forte com exatamente 8 caracteres
-  ✘ 19 [e2e] › e2e/login.spec.ts › E2E - Login e logout › [BUG] mantém o usuário logado depois de recarregar a página
-  19 passed
+  ✘ 15 [e2e] › e2e/cadastro.spec.ts › E2E - Cadastro › [BUG] aceita senha forte com exatamente 8 caracteres
+  ✘ 20 [e2e] › e2e/login.spec.ts › E2E - Login e logout › [BUG] mantém o usuário logado depois de recarregar a página
+  21 passed
 ```
 
 Os três `[BUG]` aparecem com ✘ porque falharam, mas entram no total de `passed` porque essa falha era esperada (`test.fail`).
@@ -85,7 +85,8 @@ tests/
 ├── e2e/
 │   ├── cadastro.spec.ts    # fluxo de criar conta
 │   ├── login.spec.ts       # fluxo de login e logout
-│   └── curtidas.spec.ts    # curtir com e sem autenticação, posts curtidos
+│   ├── curtidas.spec.ts    # curtir com e sem autenticação, posts curtidos
+│   └── reacoes.spec.ts     # curtidas e descurtidas do DummyJSON na home
 ├── support/
 │   ├── ambiente.ts         # URLs do client e da API (FRONT_URL / API_URL)
 │   ├── dados.ts            # gera usuários com e-mail único
@@ -106,6 +107,7 @@ tests/
 | `login.spec.ts` | **[BUG]** Usuário logado continua logado depois de recarregar a página (F5) | 2, 6 | ❌ **falha (bug)** |
 | `curtidas.spec.ts` | Deslogado, clicar em "Curtir" abre um `alert` com "Você precisa estar autenticado para curtir posts!" | 5 | ✅ passa |
 | `curtidas.spec.ts` | Logado, curte o primeiro post (❤️, "Curtido" e fundo verde) → "Posts Curtidos" mostra só esse post → descurte e a lista fica vazia | 5, 6 | ✅ passa |
+| `reacoes.spec.ts` | A home mostra junto a cada post "👍 N curtidas" e "👎 N descurtidas" com os mesmos números que a API retorna em `reactions` | Feature | ✅ passa |
 
 ## Testes de API
 
@@ -119,7 +121,8 @@ tests/
 | `auth.spec.ts` | `POST /auth/signin` com senha incorreta → `401` "Credenciais inválidas" | ✅ passa |
 | `auth.spec.ts` | `POST /auth/reset-password` com e-mail cadastrado → `200` | ✅ passa |
 | `auth.spec.ts` | `POST /auth/reset-password` com e-mail não cadastrado → `404` "Usuário não encontrado" | ✅ passa |
-| `posts.spec.ts` | `GET /posts?limit=5&skip=5` → 5 posts a partir do id 6, cada um com `id`, `title`, `body` e `liked = false` | ✅ passa |
+| `posts.spec.ts` | `GET /posts?limit=5&skip=5` → 5 posts a partir do id 6, cada um com `id`, `title`, `body`, `liked = false` e `reactions` (`likes` e `dislikes`) | ✅ passa |
+| `posts.spec.ts` | `GET /posts` repassa o objeto `reactions` igual ao do DummyJSON para os mesmos posts | ✅ passa |
 | `posts.spec.ts` | `POST /posts/3/like` curte (`liked = true`), o post aparece curtido em `GET /posts` e em `GET /posts/liked`; a segunda chamada descurte (`liked = false`) | ✅ passa |
 | `posts.spec.ts` | `GET /posts/liked` sem `userId` → `400` | ✅ passa |
 
